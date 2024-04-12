@@ -97,7 +97,7 @@ multiSampleComparisonClonalCN <- function(listCountMtx,
 
   dir <- "samples/"
 
-  if (!dir.exists(dir_path)) {
+  if (!dir.exists(dir)) {
   dir.create(dir)
   }
 
