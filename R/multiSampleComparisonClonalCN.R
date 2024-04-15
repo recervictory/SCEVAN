@@ -129,8 +129,9 @@ multiSampleComparisonClonalCN <- function(listCountMtx,
   # )
 
   # Maximum retries till cores reduce to 1
+   file.exists(file_name)
 while (par_cores >= 1) {
-  if (!file_exists("path_to_result_file")) {  # Change to your result file path
+  if (!file.exists(file_path)) {  # Change to your result file path
     tryCatch({
       # Attempt to run the pipelineCNA function
       result <- pipelineCNA(
