@@ -129,13 +129,14 @@ multiSampleComparisonClonalCN <- function(listCountMtx,
   # )
 
 # Maximum retries till cores reduce to 1
-run_cores <- par_cores
-run_count <- 3
 
-while (run_cores >= 1 | run_count > 0 ) {
-  if (!file.exists(file_path)) {  # Change to your result file path
+run_cores <- par_cores  # Assuming 'par_cores' is initialized with a value (e.g., 10)
+run_count <- 3  # Maximum number of attempts
+
+while (run_cores >= 1 && run_count > 0) {
+  if (!file.exists(file_path)) {  # Check if the result file does not exist
     tryCatch({
-      # Attempt to run the pipelineCNA function
+      # Execute the pipelineCNA function
       result <- pipelineCNA(
         listCountMtx[[x]],
         sample = x,
@@ -150,22 +151,25 @@ while (run_cores >= 1 | run_count > 0 ) {
       )
       # If the function runs successfully, break out of the loop
       print(paste("Success with", run_cores, "cores."))
-      break
+      break  # Exit the loop on success
     }, error = function(e) {
-      # On error, print the error and attempt with fewer cores
+      # Handle errors: log them and prepare for a retry
       print(paste("Failed with", run_cores, "cores. Error:", e$message))
-      if (par_cores > 1) {
-        run_cores <- max(run_cores - 5, 1)  # Decrease by 5 but not below 1
-        run_count <- run_count - 1
-        print(paste("Retrying with", par_cores, "cores."))
+      run_count <- run_count - 1  # Decrement the attempt count
+      if (run_cores > 1) {
+        run_cores <- max(run_cores - 5, 1)  # Decrement cores by 5, no less than 1
+        print(paste("Retrying with", run_cores, "cores. Remaining attempts:", run_count))
       } else {
         print("Execution failed with the minimum number of cores (1 core).")
-        break
       }
     })
   } else {
     print("Result file already exists, no need to run the pipelineCNA function.")
-    break
+    break  # Exit the loop if the file exists
+  }
+  if (run_count <= 0) {
+    print("Maximum attempts reached. Stopping execution.")
+    break  # Additional break to handle cases where run_count reaches 0 in the error handling
   }
 }
   
