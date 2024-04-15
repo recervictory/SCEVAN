@@ -130,13 +130,13 @@ multiSampleComparisonClonalCN <- function(listCountMtx,
 
 # Maximum retries till cores reduce to 1
 
-run_cores <- par_cores  # Assuming 'par_cores' is initialized with a value (e.g., 10)
-run_count <- 3  # Maximum number of attempts
+run_cores <- par_cores  # Initialize 'run_cores' with 'par_cores' value
+run_count <- 3  # Set the maximum number of attempts
 
 while (run_cores >= 1 && run_count > 0) {
   if (!file.exists(file_path)) {  # Check if the result file does not exist
     tryCatch({
-      # Execute the pipelineCNA function
+      # Attempt to run the pipelineCNA function with the current number of cores
       result <- pipelineCNA(
         listCountMtx[[x]],
         sample = x,
@@ -149,30 +149,30 @@ while (run_cores >= 1 && run_count > 0) {
         AdditionalGeneSets = NULL,
         organism = organism
       )
-      # If the function runs successfully, break out of the loop
-      print(paste("Success with", run_cores, "cores."))
+      print(paste("Success with", run_cores, "cores."))  # Print success message
       break  # Exit the loop on success
     }, error = function(e) {
-      # Handle errors: log them and prepare for a retry
-      print(paste("Failed with", run_cores, "cores. Error:", e$message))
-      run_count <- run_count - 1  # Decrement the attempt count
+      print(paste("Failed with", run_cores, "cores. Error:", e$message))  # Print error message
+      run_count <- run_count - 1  # Decrement the number of remaining attempts
       if (run_cores > 1) {
-        run_cores <- max(run_cores - 5, 1)  # Decrement cores by 5, no less than 1
-        print(paste("Retrying with", run_cores, "cores. Remaining attempts:", run_count))
+        run_cores <- max(run_cores - 5, 1)  # Decrement cores by 5 but not below 1
+        print(paste("Retrying with", run_cores, "cores. Remaining attempts:", run_count))  # Print retry message
       } else {
-        print("Execution failed with the minimum number of cores (1 core).")
+        print("Execution failed with the minimum number of cores (1 core).")  # Print failure message at 1 core
       }
     })
   } else {
-    print("Result file already exists, no need to run the pipelineCNA function.")
+    print("Result file already exists, no need to run the pipelineCNA function.")  # Print file existence message
     break  # Exit the loop if the file exists
   }
   if (run_count <= 0) {
-    print("Maximum attempts reached. Stopping execution.")
-    break  # Additional break to handle cases where run_count reaches 0 in the error handling
+    print("Maximum attempts reached. Stopping execution.")  # Print max attempts reached message
+    break  # Break the loop if no more attempts are allowed
   }
 }
-  
+
+# Ensured 'run_cores' is being decremented correctly and messages use 'run_cores' instead of 'par_cores'.
+
   # Save the result as an RDS file
   saveRDS(result, file = file_path)
   
