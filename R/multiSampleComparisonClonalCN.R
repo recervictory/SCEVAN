@@ -114,19 +114,56 @@ multiSampleComparisonClonalCN <- function(listCountMtx,
 
   }
   
-  # Execute the pipelineCNA function only if the file does not exist
-  result <- pipelineCNA(
-    listCountMtx[[x]],
-    sample = x,
-    par_cores = par_cores,
-    norm_cell = listNormCells[[x]],
-    SUBCLONES = SUBCLONES,
-    beta_vega = 0.5,
-    ClonalCN = TRUE,
-    plotTree = plotTree,
-    AdditionalGeneSets = NULL,
-    organism = organism
-  )
+  # # Execute the pipelineCNA function only if the file does not exist
+  # result <- pipelineCNA(
+  #   listCountMtx[[x]],
+  #   sample = x,
+  #   par_cores = par_cores,
+  #   norm_cell = listNormCells[[x]],
+  #   SUBCLONES = SUBCLONES,
+  #   beta_vega = 0.5,
+  #   ClonalCN = TRUE,
+  #   plotTree = plotTree,
+  #   AdditionalGeneSets = NULL,
+  #   organism = organism
+  # )
+
+  # Maximum retries till cores reduce to 1
+while (par_cores >= 1) {
+  if (!file_exists("path_to_result_file")) {  # Change to your result file path
+    tryCatch({
+      # Attempt to run the pipelineCNA function
+      result <- pipelineCNA(
+        listCountMtx[[x]],
+        sample = x,
+        par_cores = par_cores,
+        norm_cell = listNormCells[[x]],
+        SUBCLONES = SUBCLONES,
+        beta_vega = 0.5,
+        ClonalCN = TRUE,
+        plotTree = plotTree,
+        AdditionalGeneSets = NULL,
+        organism = organism
+      )
+      # If the function runs successfully, break out of the loop
+      print(paste("Success with", par_cores, "cores."))
+      break
+    }, error = function(e) {
+      # On error, print the error and attempt with fewer cores
+      print(paste("Failed with", par_cores, "cores. Error:", e$message))
+      if (par_cores > 1) {
+        par_cores <- max(par_cores - 5, 1)  # Decrease by 5 but not below 1
+        print(paste("Retrying with", par_cores, "cores."))
+      } else {
+        print("Execution failed with the minimum number of cores (1 core).")
+        break
+      }
+    })
+  } else {
+    print("Result file already exists, no need to run the pipelineCNA function.")
+    break
+  }
+}
   
   # Save the result as an RDS file
   saveRDS(result, file = file_path)
