@@ -95,7 +95,7 @@ multiSampleComparisonClonalCN <- function(listCountMtx,
   # organism=organism)
   # })
 
-  dir <- "samples/"
+  dir <- "samples_scevan/"
 
   if (!dir.exists(dir)) {
   dir.create(dir)
@@ -138,11 +138,13 @@ multiSampleComparisonClonalCN <- function(listCountMtx,
   gc()
 }
 
+  cat("ALL samples saved in the disk ....")
   files <- list.files(dir, pattern = "\\.rds$", full.names = TRUE)
   resList<- list()
 
   for(i in 1:length(files)) {
     resList[[i]] <- readRDS(files[i])
+    cat(paste("\n 2.", i  ,"File Added to list\n"))
   }
 
   names(resList) <- names(listCountMtx)
