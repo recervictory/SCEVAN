@@ -128,8 +128,7 @@ multiSampleComparisonClonalCN <- function(listCountMtx,
   #   organism = organism
   # )
 
-  # Maximum retries till cores reduce to 1
-   file.exists(file_name)
+# Maximum retries till cores reduce to 1
 while (par_cores >= 1) {
   if (!file.exists(file_path)) {  # Change to your result file path
     tryCatch({
