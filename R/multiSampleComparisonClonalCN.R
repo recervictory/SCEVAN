@@ -129,14 +129,17 @@ multiSampleComparisonClonalCN <- function(listCountMtx,
   # )
 
 # Maximum retries till cores reduce to 1
-while (par_cores >= 1) {
+run_cores <- par_cores
+run_count <- 3
+
+while (run_cores >= 1 | run_count > 0 ) {
   if (!file.exists(file_path)) {  # Change to your result file path
     tryCatch({
       # Attempt to run the pipelineCNA function
       result <- pipelineCNA(
         listCountMtx[[x]],
         sample = x,
-        par_cores = par_cores,
+        par_cores = run_cores,
         norm_cell = listNormCells[[x]],
         SUBCLONES = SUBCLONES,
         beta_vega = 0.5,
@@ -146,13 +149,14 @@ while (par_cores >= 1) {
         organism = organism
       )
       # If the function runs successfully, break out of the loop
-      print(paste("Success with", par_cores, "cores."))
+      print(paste("Success with", run_cores, "cores."))
       break
     }, error = function(e) {
       # On error, print the error and attempt with fewer cores
-      print(paste("Failed with", par_cores, "cores. Error:", e$message))
+      print(paste("Failed with", run_cores, "cores. Error:", e$message))
       if (par_cores > 1) {
-        par_cores <- max(par_cores - 5, 1)  # Decrease by 5 but not below 1
+        run_cores <- max(run_cores - 5, 1)  # Decrease by 5 but not below 1
+        run_count <- run_count - 1
         print(paste("Retrying with", par_cores, "cores."))
       } else {
         print("Execution failed with the minimum number of cores (1 core).")
