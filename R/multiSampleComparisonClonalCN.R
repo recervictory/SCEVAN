@@ -189,15 +189,28 @@ while (run_cores >= 1 && run_count > 0) {
 }
 
   cat("ALL samples saved in the disk ....")
+  # Get list of .rds files in the specified directory
   files <- list.files(dir, pattern = "\\.rds$", full.names = TRUE)
-  resList<- list()
+  resList <- list()  # Initialize empty list
 
-  for(i in 1:length(files)) {
-    resList[[i]] <- readRDS(files[i])
-    cat(paste("\n 2.", i  ,"File Added to list\n"))
-  }
+  for (i in 1:length(files)) {
+  # Read the .rds file
+  resList[[i]] <- readRDS(files[i])
+  
+  # Extract the base name without the extension and set it as the list element name
+  names(resList)[i] <- file_path_sans_ext(basename(files[i]))
+  
+  # Output message about file addition
+  cat(paste("\n 2.", i, "File Added to list as '", names(resList)[i], "'\n", sep=""))
+}
 
-  names(resList) <- names(listCountMtx)
+  # names(resList) <- names(listCountMtx)
+  runCompleted <- intersect(names(resList), names(listCountMtx))
+
+  listCountMtx <- listCountMtx[runCompleted]
+
+  cat("Completed Run Samples............")
+  print(names(listCountMtx))
   
   sampleAlterList <- lapply(names(listCountMtx), function(x) {
     analyzeSegm(x, nSub = 0)
